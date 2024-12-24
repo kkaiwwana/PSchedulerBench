@@ -58,11 +58,11 @@ def visualize_process_schedule(processes_done: Dict[int, WrappedProcess], show_o
         raise ValueError(f'Show_order: {show_order} should be `done` or `arrive`')
 
     STATE_COLORS = {
-        ProcessState.CREATE: "blue",
-        ProcessState.START_RUNNING: "green",
+        ProcessState.CREATE: "green",
+        ProcessState.START_RUNNING: "gold",
         ProcessState.RUNNING: "orange",
-        ProcessState.PAUSE_RUNNING: "red",
-        ProcessState.FINISHED: "gray",
+        ProcessState.PAUSE_RUNNING: "gainsboro",
+        ProcessState.FINISHED: "red",
     }
 
     processes_done = [

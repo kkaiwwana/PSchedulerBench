@@ -8,7 +8,7 @@ defaults:
       - SPMFQ
 
 exp:
-  n_repeats: 2
+  n_repeats: 5
   uuid: ${now:%m%d_%H%M%S}
   save_dir: ${hydra:runtime.cwd}/logs/
   skip_single_var: true  # skip plot those vars with only one value. only plot var with provided range.
@@ -23,13 +23,13 @@ test_groups:
   n_processes_group:
     _target_: scripts.evaluate.get_params_group
     val_range: [10, 1000]
-    n_groups: 3
+    n_groups: 5
     is_geometric: true
 
   lens_mean_normal_group:
     _target_: scripts.evaluate.get_params_group
     val_range: [30, 50]
-    n_groups: 3
+    n_groups: 1
 
   lens_std_normal_group:
     _target_: scripts.evaluate.get_params_group
