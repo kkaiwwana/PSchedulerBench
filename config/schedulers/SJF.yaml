@@ -1,0 +1,3 @@
+shorted_job_first:
+  _target_: src.schedulers.schedulers.SJF
+  is_preemptive: false

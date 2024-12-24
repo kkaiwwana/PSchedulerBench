@@ -1,0 +1,6 @@
+static_priority_multilevel_feedback_queue:
+  _target_: src.schedulers.schedulers.SPMFQ
+  base_time_slices: 2
+  min_exp: 1.1
+  exp_increment: 0.15
+  n_queues: 16

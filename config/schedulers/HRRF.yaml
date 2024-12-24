@@ -1,0 +1,2 @@
+highest_response_ratio_first:
+  _target_: src.schedulers.schedulers.HRRF

@@ -1,0 +1,4 @@
+static_priority:
+  _target_: src.schedulers.schedulers.SP
+  min_time_slice: 1
+  time_slice_increment: 1

@@ -1,0 +1,44 @@
+defaults:
+  - _self_
+  - schedulers:
+      - RR
+      - SJF
+      - FCFS
+      - MFQ
+      - SPMFQ
+
+exp:
+  n_repeats: 2
+  uuid: ${now:%m%d_%H%M%S}
+  save_dir: ${hydra:runtime.cwd}/logs/
+  skip_single_var: true  # skip plot those vars with only one value. only plot var with provided range.
+
+
+virtual_env:
+  n_threads: 2
+
+
+test_groups:
+  _target_: scripts.evaluate.generate_test_groups
+  n_processes_group:
+    _target_: scripts.evaluate.get_params_group
+    val_range: [10, 1000]
+    n_groups: 3
+    is_geometric: true
+
+  lens_mean_normal_group:
+    _target_: scripts.evaluate.get_params_group
+    val_range: [30, 50]
+    n_groups: 3
+
+  lens_std_normal_group:
+    _target_: scripts.evaluate.get_params_group
+    val_range: [20]
+    n_groups: 1
+
+  density_group:
+    _target_: scripts.evaluate.get_params_group
+    val_range: [1.2]
+    n_groups: 1
+    is_integer: false
+

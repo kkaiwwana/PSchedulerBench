@@ -1,0 +1,4 @@
+dynamic_priority_multilevel_queue:
+  _target_: src.schedulers.schedulers.MQ
+  min_time_slice: 1
+  time_slice_increment: 1

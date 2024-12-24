@@ -1,0 +1,2 @@
+fist_come_first_served:
+  _target_: src.schedulers.schedulers.FCFS

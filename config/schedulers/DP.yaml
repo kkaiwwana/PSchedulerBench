@@ -1,0 +1,5 @@
+dynamic_priority:
+  _target_: src.schedulers.schedulers.DP
+  min_time_slice: 1
+  time_slice_increment: 1
+

@@ -1,0 +1,3 @@
+round_robin:
+  _target_: src.schedulers.schedulers.RR
+  time_slice: 5
