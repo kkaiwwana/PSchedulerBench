@@ -1,0 +1,6 @@
+mixed_priority_multilevel_feedback_queue:
+  _target_: src.schedulers.schedulers.MPMFQ
+  base_time_slices: 2
+  min_exp: 1.1
+  exp_increment: 0.2
+  n_queues: 16

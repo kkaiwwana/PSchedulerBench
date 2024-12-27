@@ -342,3 +342,64 @@ class SPMFQ(SchedulerBase):
 
         for pid in env.on_running:
             env.processes[pid].slice_cnt -= 1
+
+
+class MPMFQ(SchedulerBase):
+    """
+    Mixed (Static+Dynamic) Priority Multi-level Feedback Queue
+    """
+    def __init__(self, base_time_slices=2, min_exp=1.1, exp_increment=0.15, n_queues=16):
+        super().__init__()
+        self.base_time_slices = base_time_slices
+        self.min_exp = min_exp
+        self.exp_increment = exp_increment
+        self.n_queses = n_queues
+
+    def wrap_task(self, task: ProcessBase) -> WrappedProcess:
+        return WrappedProcess(task, queue_index=0, slice_cnt=0, d_prio=task.STATIC_PRIO)
+
+    def schedule(self, env: VirtualEnv) -> None:
+        pid_to_pause = []
+        for pid in env.on_running:
+            if env.processes[pid].slice_cnt == 0:
+                pid_to_pause.append(pid)
+
+        for pid, process in env.processes.items():
+            total_time = (env.timesteps - process.get_state_timesteps(PSt.CREATE)[0]) + 1
+            run_time = len(process.get_state_timesteps(PSt.RUNNING)) / total_time
+            wait_time = 1 - run_time
+            env.processes[pid].d_prio = process.task_base.STATIC_PRIO - run_time + wait_time
+
+        for pid, process in sorted(env.processes.items(), key=lambda kv: (kv[-1].queue_index, -kv[-1].d_prio))[:env.n_threads]:
+            if pid not in env.on_running:
+                if env.on_running == env.n_threads:
+                    max_queue_pid = max(env.on_running, key=lambda x: env.processes[x].queue_index)
+                    if env.processes[max_queue_pid].queue_index > env.processes[pid]:
+                        pid_to_pause.append(max_queue_pid)
+
+                        env.on_running.append(pid)
+                        env.processes[pid].timeline.append((env.timesteps, PSt.START_RUNNING))
+                        exp_val = (self.min_exp +
+                                   self.exp_increment * process.task_base.STATIC_PRIO) ** process.queue_index
+                        env.processes[pid].slice_cnt = int(self.base_time_slices * exp_val)
+
+                        self.schedule_times += 1
+
+                else:
+                    env.on_running.append(pid)
+                    env.processes[pid].timeline.append((env.timesteps, PSt.START_RUNNING))
+                    exp_val = (self.min_exp +
+                               self.exp_increment * process.task_base.STATIC_PRIO) ** process.queue_index
+                    env.processes[pid].slice_cnt = int(self.base_time_slices * exp_val)
+
+                    self.schedule_times += 1
+
+        for pid in set(pid_to_pause):
+            env.on_running.remove(pid)
+            env.processes[pid].timeline.append((env.timesteps, PSt.PAUSE_RUNNING))
+            env.processes[pid].slice_cnt = 0
+            env.processes[pid].queue_index = min(self.n_queses, env.processes[pid].queue_index + 1)
+            env.processes.move_to_end(pid)
+
+        for pid in env.on_running:
+            env.processes[pid].slice_cnt -= 1
